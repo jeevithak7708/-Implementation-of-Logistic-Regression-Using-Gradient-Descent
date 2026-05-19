@@ -1,4 +1,4 @@
-<img width="860" height="677" alt="image" src="https://github.com/user-attachments/assets/a52cd328-cd7d-49e8-87a4-3e6e0982e886" /># Implementation-of-Logistic-Regression-Using-Gradient-Descent
+# Implementation-of-Logistic-Regression-Using-Gradient-Descent
 
 DEVELOPED BY : JEEVITHA K
 
