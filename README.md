@@ -13,57 +13,101 @@ To write a program to implement the the Logistic Regression Using Gradient Desce
 
 ## Algorithm
 1.Import the required libraries.
+
 2.Read the csv file.
+
 3.Using Gradient descent perform the Logistic regression.
+
 4.Print the output.
 
 ## Program:
 ```
-import numpy as np
+Program to implement the the Logistic Regression Using Gradient Descent.
+
+
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import StandardScaler
+
 data = pd.read_csv("Placement_Data.csv")
-data['status'] = data['status'].map({'Placed': 1, 'Not Placed': 0})
-X = data[['ssc_p', 'mba_p']].values
-y = data['status'].values
+data.head()
+from sklearn.preprocessing import LabelEncoder
+
+le = LabelEncoder()
+
+categorical_cols = [
+    'gender', 'ssc_b', 'hsc_b', 'hsc_s',
+    'degree_t', 'workex', 'specialisation', 'status'
+]
+
+for col in categorical_cols:
+    data[col] = le.fit_transform(data[col])
+
+data.head()
+X = data.drop(['status', 'salary'], axis=1).values
+y = data['status'].values.reshape(-1, 1)
+from sklearn.preprocessing import StandardScaler
+
 scaler = StandardScaler()
 X = scaler.fit_transform(X)
-m = len(y)
-X = np.c_[np.ones(m), X]
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+m, n = X_train.shape   # samples, features
+w = np.zeros((n, 1))   # weights
+b = 0                 # bias
+
+alpha = 0.01           # learning rate
+iterations = 3000      # number of iterations
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
-def cost_function(X, y, theta):
-    h = sigmoid(X @ theta)
-    return (-1/m) * np.sum(y*np.log(h) + (1-y)*np.log(1-h))
-theta = np.zeros(X.shape[1])
-alpha = 0.1
-cost_history = []
+losses = []
 
-for i in range(500):
-    z = X @ theta
-    h = sigmoid(z)
-    gradient = (1/m) * X.T @ (h - y)
-    theta = theta - alpha * gradient
+for i in range(iterations):
+    z = np.dot(X_train, w) + b
+    y_hat = sigmoid(z)
     
-    cost = cost_function(X, y, theta)
-    cost_history.append(cost)
-y_pred = (sigmoid(X @ theta) >= 0.5).astype(int)
-accuracy = np.mean(y_pred == y) * 100
-print("Weights:", theta)
-print("Accuracy:", accuracy, "%")
-plt.figure()
-plt.plot(cost_history)
-plt.xlabel("Iterations")
-plt.ylabel("Cost")
-plt.title("Logistic Regression using Gradient Descent")
-plt.show()
+    dw = (1/m) * np.dot(X_train.T, (y_hat - y_train))
+    db = (1/m) * np.sum(y_hat - y_train)
+    
+    w -= alpha * dw
+    b -= alpha * db
+    
+    loss = -(1/m) * np.sum(
+        y_train * np.log(y_hat + 1e-9) + 
+        (1 - y_train) * np.log(1 - y_hat + 1e-9)
+    )
+    losses.append(loss)
 
+print("Training completed")
+plt.plot(losses)
+plt.xlabel("Iterations")
+plt.ylabel("Loss")
+plt.title("Loss vs Iterations (Gradient Descent)")
+plt.show()
+def predict(X):
+    z = np.dot(X, w) + b
+    y_pred = sigmoid(z)
+    return (y_pred >= 0.5).astype(int)
+y_pred = predict(X_test)
+
+accuracy = np.mean(y_pred == y_test)
+print("Accuracy:", accuracy)
+from sklearn.metrics import confusion_matrix, classification_report
+
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
 ```
 
 ## Output:
 
-<img width="860" height="678" alt="Screenshot 2026-05-19 214714" src="https://github.com/user-attachments/assets/59b8bfbf-db2b-495d-9ff7-46677580d890" />
+<img width="935" height="643" alt="Screenshot 2026-05-25 073616" src="https://github.com/user-attachments/assets/b552dcc1-329c-40b9-9630-fc17d968e793" />
+
+<img width="847" height="387" alt="Screenshot 2026-05-25 073624" src="https://github.com/user-attachments/assets/8c468083-b9fa-41f4-9785-b39b6a0369cf" />
+
+
 
 
 
